@@ -85,98 +85,74 @@
 
 <!-- Supabase JS - WARNING: Using service_role key in frontend is insecure for production! -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  // Initialize Supabase with project URL and service_role key (provided by user)
-  // WARNING: This is insecure! Never expose service_role keys in client-side code in production.
-  console.log('Initializing Supabase client...');
-  const supabaseUrl = 'https://ifsrtrmeuwbpypsaaqzi.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmc3J0cm1ldXdicHlwc2FhcXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDA0MDQsImV4cCI6MjA5NDcxNjQwNH0.4ZsCE7AxYDqEgc0JZzYMwmBOwv1U-r5-Qv9IsrN_IcE';
+const supabaseUrl = 'https://ifsrtrmeuwbpypsaaqzi.supabase.co';
 
-  let supabase;
-  try {
-    supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    console.log('Supabase client initialized');
-  } catch (initError) {
-    console.error('Failed to initialize Supabase:', initError);
-    alert('Erro ao inicializar autenticação. Verifique a conexão com a internet.');
-  }
+// USE A CHAVE ANON PUBLICA DO SUPABASE
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmc3J0cm1ldXdicHlwc2FhcXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDA0MDQsImV4cCI6MjA5NDcxNjQwNH0.4ZsCE7AxYDqEgc0JZzYMwmBOwv1U-r5-Qv9IsrN_IcE';
 
-  // Check if already logged in on page load
-  window.addEventListener('load', async () => {
-    if (!supabase) {
-      console.error('Supabase not initialized');
-      return;
-    }
+// CORRETO
+const client = supabase.createClient(supabaseUrl, supabaseKey);
 
+window.addEventListener('load', async () => {
     try {
-      console.log('Checking session on load...');
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Error getting session on load:', error);
-        return;
-      }
+        const {
+            data: { session },
+            error
+        } = await client.auth.getSession();
 
-      console.log('Session data on load:', session);
-      if (session) {
-        // Already logged in, redirect to test page
-        console.log('User already logged in, redirecting to test page');
-        window.location.href = 'test.html';
-      }
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        if (session) {
+            window.location.href = 'test.html';
+        }
     } catch (err) {
-      console.error('Error in session check on load:', err);
+        console.error(err);
     }
-  });
+});
 
-  // Handle form submission
-  const form = document.getElementById('loginForm');
-  const errorMessage = document.getElementById('errorMessage');
+const form = document.getElementById('loginForm');
+const errorMessage = document.getElementById('errorMessage');
 
-  form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    errorMessage.textContent = '';
-    errorMessage.style.display = 'none';
 
-    if (!supabase) {
-      errorMessage.textContent = 'Erro de autenticação. Tente novamente.';
-      errorMessage.style.display = 'block';
-      errorMessage.style.color = 'red';
-      errorMessage.style.marginTop = '10px';
-      errorMessage.style.textAlign = 'center';
-      return;
-    }
+    errorMessage.style.display = 'none';
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    // Attempt to sign in with email and password
-    supabase.auth.signInWithPassword({
-      email: email,
-      password: password
-    })
-    .then(({ data, error }) => {
-      if (error) {
-        // Show error message
-        console.log('Login error:', error);
-        errorMessage.textContent = 'O E-mail ou Senha estão incorretos';
+    try {
+        const { data, error } = await client.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if (error) {
+            errorMessage.textContent = 'Email ou senha incorretos';
+            errorMessage.style.display = 'block';
+            errorMessage.style.color = 'red';
+            errorMessage.style.textAlign = 'center';
+            return;
+        }
+
+        console.log('Login realizado', data);
+
+        window.location.href = 'test.html';
+
+    } catch (err) {
+        console.error(err);
+
+        errorMessage.textContent = 'Erro inesperado';
         errorMessage.style.display = 'block';
         errorMessage.style.color = 'red';
-        errorMessage.style.marginTop = '10px';
         errorMessage.style.textAlign = 'center';
-      } else {
-        // Login successful - redirect to test page
-        console.log('Login successful');
-        window.location.href = 'test.html';
-      }
-    })
-    .catch(err => {
-      console.error('Unexpected error during login:', err);
-      errorMessage.textContent = 'Erro inesperado durante o login';
-      errorMessage.style.display = 'block';
-      errorMessage.style.color = 'red';
-      errorMessage.style.marginTop = '10px';
-      errorMessage.style.textAlign = 'center';
-    });
-  });
+    }
+});
 </script>
 </body>
 </html>
