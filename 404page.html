@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Página não encontrada</title>
+    <link rel="stylesheet" href="404page.css">
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <p>Página não encontrada</p>
+        <p>Desculpe, a página que você está procurando não existe.</p>
+        <div class="button-group">
+            <button id="searchBtn" class="btn btn-search">Pesquisar</button>
+            <a href="https://www.youtube.com" class="btn btn-home">Voltar para página inicial</a>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+document.getElementById('searchBtn').addEventListener('click', function() {
+    alert('Funcionalidade de busca não implementada neste exemplo.');
+});
+
+const supabaseUrl = 'https://ifsrtrmeuwbpypsaaqzi.supabase.co';
+const supabaseKey = 'sb_publishable_g6NLnNPnlrIV-BLHDTtARg_THPHYMh7';
+
+// nome diferente
+const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+(async () => {
+    try {
+        const {
+            data: { session },
+            error
+        } = await client.auth.getSession();
+
+        if (error) {
+            console.error(error);
+            window.location.href = 'login.html';
+            return;
+        }
+
+        if (!session) {
+            window.location.href = 'login.html';
+        } else {
+            console.log('Usuário autenticado');
+        }
+
+    } catch (err) {
+        console.error(err);
+        window.location.href = 'login.html';
+    }
+})();
+</script>
+</body>
+</html>
